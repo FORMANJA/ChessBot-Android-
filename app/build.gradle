@@ -1,0 +1,12 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.example.chessbot'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.example.chessbot'
+        minSdk 29
+        targetSdk 32
+        versionCode 1
+        versionName '0.1'
+    }
+}
