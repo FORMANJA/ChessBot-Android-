@@ -21,6 +21,11 @@ jobs:
         run: |
           echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+      - name: Verify move tracker regression tests
+        run: |
+          mkdir -p /tmp/chessbot-test
+          javac -d /tmp/chessbot-test app/src/main/java/com/example/chessbot/MoveTracker.java app/src/test/java/com/example/chessbot/MoveTrackerTest.java
+          java -cp /tmp/chessbot-test com.example.chessbot.MoveTrackerTest
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - uses: actions/upload-artifact@v4
