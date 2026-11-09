@@ -79,9 +79,11 @@ public class CaptureService extends Service {
         padded.copyPixelsFromBuffer(buffer);
         Bitmap cropped=Bitmap.createBitmap(padded,0,0,w,h);
         File out=new File(getExternalFilesDir(null),"board_capture.png");
+        File prev=new File(getExternalFilesDir(null),"board_previous.png");
+        if(out.exists()) { java.nio.file.Files.copy(out.toPath(),prev.toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
         try(FileOutputStream stream=new FileOutputStream(out)) { cropped.compress(Bitmap.CompressFormat.PNG,100,stream); }
         img.close(); padded.recycle(); cropped.recycle();
-        finish("Kaydedildi: "+w+"×"+h);
+        finish("Kaydedildi: "+w+"×"+h+". Önceki görüntü saklandı.");
     }
     private void finish(String message) {
         if(completed) return;
