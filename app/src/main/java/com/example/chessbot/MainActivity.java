@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(20,24,20,16);
         TextView title=new TextView(this);
-        title.setText("ChessBot Lab V0.3 — Tahta Kalibrasyonu");
+        title.setText("ChessBot Lab V0.4 — Kare Farkı Analizi");
         title.setTextSize(19);
         root.addView(title);
         status=new TextView(this);
@@ -36,6 +36,23 @@ public class MainActivity extends Activity {
         reload.setText("Son görüntüyü yükle");
         root.addView(reload);
         reload.setOnClickListener(v -> reloadImage());
+        Button compare=new Button(this);
+        compare.setText("Önceki ve son görüntüyü karşılaştır");
+        root.addView(compare);
+        compare.setOnClickListener(v -> {
+            File folder=getExternalFilesDir(null);
+            File previous=new File(folder,"board_previous.png");
+            File current=new File(folder,"board_capture.png");
+            if(!previous.exists()||!current.exists()) {
+                status.setText("Karşılaştırmak için iki ayrı ekran yakalaması yap.");
+                return;
+            }
+            android.content.SharedPreferences pref=getSharedPreferences("board",MODE_PRIVATE);
+            if(!pref.contains("left")) {status.setText("Önce tahtanın köşelerini seç.");return;}
+            status.setText(BoardDiff.compare(previous,current,
+                pref.getFloat("left",0),pref.getFloat("top",0),
+                pref.getFloat("right",0),pref.getFloat("bottom",0)));
+        });
         TextView guide=new TextView(this);
         guide.setText("Görüntü açılınca tahtanın SOL ÜST ve SAĞ ALT köşelerine sırayla dokun. Kırmızı 8×8 ızgara görünür.");
         root.addView(guide);
