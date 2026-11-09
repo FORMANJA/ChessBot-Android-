@@ -7,3 +7,7 @@ For a meaningful test: reset the tracker, capture a fresh initial board, make ex
 ## v0.5.1 history sync
 
 Enter **every prior move in chronological UCI form** (e.g. `g1f3 g8f6 d2d3`) and press **Hamle geçmişini eşitle** before comparing a screenshot pair containing the next single move. The tracker assumes white at bottom and starts from the standard chess position. It has no complete legality engine, promotion/castling/en passant support, or robust handling for screenshots with multiple moves. Incorrect history must be reset rather than guessed.
+
+## v0.6 experimental two-move detection
+
+The **1 veya 2 hamleyi analiz et** button evaluates changed squares against the internally tracked position. It can recognize some sequences of two non-capturing moves (e.g. g1f3 d7d6) without requiring separate screenshots between the moves. It refuses ambiguous candidate sets. It still requires synchronization with the actual game position and cannot recover arbitrary missed moves. Castling, en passant, promotion, captures in two-move mode, and full legal-check validation are unsupported. Do not use for automatic play.
