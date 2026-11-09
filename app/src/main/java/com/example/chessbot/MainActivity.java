@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(20,24,20,16);
         TextView title=new TextView(this);
-        title.setText("ChessBot Lab V0.5 — Hamle Adayı");
+        title.setText("ChessBot Lab V0.6 — 1–2 Hamle Analizi");
         title.setTextSize(19);
         root.addView(title);
         status=new TextView(this);
@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
             status.setText(tracker.syncHistory(history.getText().toString()));
         });
         Button infer=new Button(this);
-        infer.setText("Tek hamleyi tahmin et (deneysel)");
+        infer.setText("1 veya 2 hamleyi analiz et (deneysel)");
         root.addView(infer);
         infer.setOnClickListener(v -> {
             File folder=getExternalFilesDir(null);
@@ -86,8 +86,8 @@ public class MainActivity extends Activity {
             double[] sorted=result.scores.clone();
             java.util.Arrays.sort(sorted);
             double cutoff=Math.max(20.0,(sorted[61]+sorted[62])/2.0);
-            String move=tracker.observe(result.scores,cutoff);
-            if(move.startsWith("Aday hamle:"))lastCompared=fingerprint;
+            String move=tracker.observeSequence(result.scores);
+            if(move.startsWith("Tek hamle adayı:")||move.startsWith("İki hamle adayı:"))lastCompared=fingerprint;
             status.setText(move+"\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\n"+result.summary);
         });
         Button resetMoves=new Button(this);
