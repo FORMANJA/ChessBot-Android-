@@ -56,6 +56,18 @@ public class MainActivity extends Activity {
                 pref.getFloat("right",0),pref.getFloat("bottom",0));
             status.setText(analysis.summary);
         });
+        EditText history=new EditText(this);
+        history.setSingleLine(false);
+        history.setMinLines(1);
+        history.setHint("Önceki hamleler: g1f3 g8f6 d2d3");
+        root.addView(history);
+        Button sync=new Button(this);
+        sync.setText("Hamle geçmişini eşitle");
+        root.addView(sync);
+        sync.setOnClickListener(v -> {
+            lastCompared="";
+            status.setText(tracker.syncHistory(history.getText().toString()));
+        });
         Button infer=new Button(this);
         infer.setText("Tek hamleyi tahmin et (deneysel)");
         root.addView(infer);
