@@ -40,6 +40,67 @@ public final class MoveTracker {
         }
         return moves.length+" hamle yüklendi. Sıra: "+(whiteTurn?"beyaz":"siyah")+".";
     }
+
+    /** Evaluate one or two sequential moves from the four strongest changed squares.
+     * Refuses to mutate state unless exactly one candidate sequence is found.
+     * Experimental: captures, promotions, castling and check legality not fully supported.
+     */
+    public String observeSequence(double[] scores) {
+        if(scores==null||scores.length!=64)return "64 karelik veri gerekli";
+        Integer[] order=new Integer[64];
+        for(int i=0;i<64;i++)order[i]=i;
+        java.util.Arrays.sort(order,(a,b)->Double.compare(scores[b],scores[a]));
+        if(scores[order[1]]<18)return "Yeterli kare değişimi yok.";
+        int[] top=new int[]{order[0],order[1],order[2],order[3]};
+        java.util.LinkedHashMap<String,int[]> sequences=new java.util.LinkedHashMap<>();
+        // First try a pair of consecutive moves (white then black, or vice versa).
+        if(scores[top[3]]>=18) {
+            for(int i=0;i<4;i++)for(int j=0;j<4;j++) {
+                if(i==j)continue;
+                int from=top[i],to=top[j];
+                if(!canMove(from,to))continue;
+                char p=board[from/8][from%8],dest=board[to/8][to%8];
+                if(dest!='.' || (Character.toLowerCase(p)=='p'&&(to/8==0||to/8==7)))continue;
+                board[to/8][to%8]=p;board[from/8][from%8]='.';whiteTurn=!whiteTurn;
+                for(int k=0;k<4;k++)for(int l=0;l<4;l++){
+                    if(k==l||k==i||k==j||l==i||l==j)continue;
+                    int f2=top[k],t2=top[l];
+                    if(canMove(f2,t2)&&board[t2/8][t2%8]=='.' &&
+                       !(Character.toLowerCase(board[f2/8][f2%8])=='p'&&(t2/8==0||t2/8==7))) {
+                        String name=notation(from,to)+" "+notation(f2,t2);
+                        sequences.put(name,new int[]{from,to,f2,t2});
+                    }
+                }
+                whiteTurn=!whiteTurn;board[from/8][from%8]=p;board[to/8][to%8]=dest;
+            }
+        }
+        if(sequences.size()==1) {
+            int[] m=sequences.values().iterator().next();
+            apply(m[0],m[1]);apply(m[2],m[3]);
+            return "İki hamle adayı: "+sequences.keySet().iterator().next()+" (deneysel)";
+        }
+        if(sequences.size()>1)return "Birden fazla iki-hamle olasılığı var ("+sequences.size()+"). Takip değiştirilmedi.";
+        // Only accept a single move when there is a strong gap after the second square.
+        if(scores[order[1]]<scores[order[2]]*1.65+8)
+            return "Bir veya iki hamle belirsiz; takip değiştirilmedi.";
+        int a=order[0],b=order[1];
+        boolean ab=canMove(a,b)&&board[b/8][b%8]=='.';
+        boolean ba=canMove(b,a)&&board[a/8][a%8]=='.';
+        if(ab==ba)return "Tek hamle yönü belirlenemedi; takip değiştirilmedi.";
+        int from=ab?a:b,to=ab?b:a;
+        if(Character.toLowerCase(board[from/8][from%8])=='p'&&(to/8==0||to/8==7))
+            return "Terfi desteklenmiyor.";
+        apply(from,to);
+        return "Tek hamle adayı: "+notation(from,to)+" (deneysel)";
+    }
+    private void apply(int from,int to) {
+        board[to/8][to%8]=board[from/8][from%8];
+        board[from/8][from%8]='.';
+        whiteTurn=!whiteTurn;
+    }
+    private String notation(int from,int to) {
+        return ""+(char)('a'+from%8)+(8-from/8)+(char)('a'+to%8)+(8-to/8);
+    }
     public String observe(double[] changes,double threshold){
         if(changes==null||changes.length!=64)return "64 karelik veri gerekli";
         int[] candidate=new int[4];int count=0;
