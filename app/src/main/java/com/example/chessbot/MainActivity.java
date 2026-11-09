@@ -11,7 +11,7 @@ import java.io.File;
 
 public class MainActivity extends Activity {
     private TextView status;
-    private BoardView boardView;
+    private BoardView boardView;\n    private MoveTracker tracker=new MoveTracker();\n    private String lastCompared="";
     private final int REQUEST_CAPTURE=42;
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(20,24,20,16);
         TextView title=new TextView(this);
-        title.setText("ChessBot Lab V0.4 — Kare Farkı Analizi");
+        title.setText("ChessBot Lab V0.5 — Hamle Adayı");
         title.setTextSize(19);
         root.addView(title);
         status=new TextView(this);
@@ -49,10 +49,36 @@ public class MainActivity extends Activity {
             }
             android.content.SharedPreferences pref=getSharedPreferences("board",MODE_PRIVATE);
             if(!pref.contains("left")) {status.setText("Önce tahtanın köşelerini seç.");return;}
-            status.setText(BoardDiff.compare(previous,current,
+            BoardDiff.Result analysis=BoardDiff.analyze(previous,current,
                 pref.getFloat("left",0),pref.getFloat("top",0),
-                pref.getFloat("right",0),pref.getFloat("bottom",0)));
+                pref.getFloat("right",0),pref.getFloat("bottom",0));\n            status.setText(analysis.summary);
         });
+        Button infer=new Button(this);
+        infer.setText("Tek hamleyi tahmin et (deneysel)");
+        root.addView(infer);
+        infer.setOnClickListener(v -> {
+            File folder=getExternalFilesDir(null);
+            File previous=new File(folder,"board_previous.png"),current=new File(folder,"board_capture.png");
+            if(!previous.exists()||!current.exists()){status.setText("Önce iki görüntü yakala.");return;}
+            android.content.SharedPreferences pref=getSharedPreferences("board",MODE_PRIVATE);
+            if(!pref.contains("left")){status.setText("Önce tahtayı kalibre et.");return;}
+            String fingerprint=previous.lastModified()+":"+current.lastModified();
+            if(fingerprint.equals(lastCompared)){status.setText("Bu görüntü çifti zaten işlendi. Yeni hamle yakala.");return;}
+            BoardDiff.Result result=BoardDiff.analyze(previous,current,
+                pref.getFloat("left",0),pref.getFloat("top",0),
+                pref.getFloat("right",0),pref.getFloat("bottom",0));
+            if(result.scores==null){status.setText(result.summary);return;}
+            double[] sorted=result.scores.clone();
+            java.util.Arrays.sort(sorted);
+            double cutoff=Math.max(20.0,(sorted[61]+sorted[62])/2.0);
+            String move=tracker.observe(result.scores,cutoff);
+            if(move.startsWith("Aday hamle:"))lastCompared=fingerprint;
+            status.setText(move+"\\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\\n"+result.summary);
+        });
+        Button resetMoves=new Button(this);
+        resetMoves.setText("Hamle takibini başlangıca sıfırla");
+        root.addView(resetMoves);
+        resetMoves.setOnClickListener(v->{tracker.reset();lastCompared="";status.setText("Hamle takibi sıfırlandı. Başlangıç konumundan ve beyazın sırasından başla.");});
         TextView guide=new TextView(this);
         guide.setText("Görüntü açılınca tahtanın SOL ÜST ve SAĞ ALT köşelerine sırayla dokun. Kırmızı 8×8 ızgara görünür.");
         root.addView(guide);
