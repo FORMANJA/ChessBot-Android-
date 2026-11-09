@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
             double cutoff=Math.max(20.0,(sorted[61]+sorted[62])/2.0);
             String move=tracker.observe(result.scores,cutoff);
             if(move.startsWith("Aday hamle:"))lastCompared=fingerprint;
-            status.setText(move+"\\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\\n"+result.summary);
+            status.setText(move+"\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\n"+result.summary);
         });
         Button resetMoves=new Button(this);
         resetMoves.setText("Hamle takibini başlangıca sıfırla");
