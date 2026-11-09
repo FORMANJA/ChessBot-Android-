@@ -8,11 +8,13 @@ import java.util.Locale;
 public final class MoveTracker {
     private final char[][] board=new char[8][8];
     private boolean whiteTurn=true;
+    private final java.util.ArrayList<String> moves=new java.util.ArrayList<>();
     public MoveTracker(){reset();}
     public void reset(){
         String[] rows={"rnbqkbnr","pppppppp","........","........","........","........","PPPPPPPP","RNBQKBNR"};
         for(int r=0;r<8;r++)board[r]=rows[r].toCharArray();
         whiteTurn=true;
+        moves.clear();
     }
     /** Rebuild from the standard opening using a verified chronological UCI move list. */
     public String syncHistory(String history) {
@@ -37,6 +39,7 @@ public final class MoveTracker {
             board[to/8][to%8]=piece;
             board[from/8][from%8]='.';
             whiteTurn=!whiteTurn;
+            this.moves.add(m);
         }
         return moves.length+" hamle yüklendi. Sıra: "+(whiteTurn?"beyaz":"siyah")+".";
     }
@@ -97,6 +100,7 @@ public final class MoveTracker {
         board[to/8][to%8]=board[from/8][from%8];
         board[from/8][from%8]='.';
         whiteTurn=!whiteTurn;
+        moves.add(notation(from,to));
     }
     private String notation(int from,int to) {
         return ""+(char)('a'+from%8)+(8-from/8)+(char)('a'+to%8)+(8-to/8);
@@ -126,6 +130,27 @@ public final class MoveTracker {
         return String.format(Locale.US,"Aday hamle: %c%d%c%d (uygulandı; tam yasallık kontrolü yok)",
             'a'+from%8,8-from/8,'a'+to%8,8-to/8);
     }
+    /** FEN piece placement, side to move, and conservative unknown castling/en-passant fields.
+     * Castling rights are deliberately '-' until full move legality is implemented.
+     */
+    public String fen() {
+        StringBuilder out=new StringBuilder();
+        for(int r=0;r<8;r++){
+            if(r>0)out.append('/');
+            int empty=0;
+            for(int c=0;c<8;c++){
+                char p=board[r][c];
+                if(p=='.'){empty++;continue;}
+                if(empty>0){out.append(empty);empty=0;}
+                out.append(p);
+            }
+            if(empty>0)out.append(empty);
+        }
+        out.append(whiteTurn?" w - - 0 ":" b - - 0 ");
+        out.append(1+moves.size()/2);
+        return out.toString();
+    }
+    public String history(){return String.join(" ",moves);}
     private boolean isOwn(char p){return p!='.' && Character.isUpperCase(p)==whiteTurn;}
     private boolean canMove(int a,int b){
         char p=board[a/8][a%8];if(!isOwn(p))return false;
