@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(20,24,20,16);
         TextView title=new TextView(this);
-        title.setText("ChessBot Lab V0.6 — 1–2 Hamle Analizi");
+        title.setText("ChessBot Lab V0.7 — Pozisyon Takibi");
         title.setTextSize(19);
         root.addView(title);
         status=new TextView(this);
@@ -66,7 +66,8 @@ public class MainActivity extends Activity {
         root.addView(sync);
         sync.setOnClickListener(v -> {
             lastCompared="";
-            status.setText(tracker.syncHistory(history.getText().toString()));
+            status.setText(tracker.syncHistory(history.getText().toString())+"\nFEN (sınırlı): "+tracker.fen());
+            saveTracking();
         });
         Button infer=new Button(this);
         infer.setText("1 veya 2 hamleyi analiz et (deneysel)");
@@ -87,13 +88,17 @@ public class MainActivity extends Activity {
             java.util.Arrays.sort(sorted);
             double cutoff=Math.max(20.0,(sorted[61]+sorted[62])/2.0);
             String move=tracker.observeSequence(result.scores);
-            if(move.startsWith("Tek hamle adayı:")||move.startsWith("İki hamle adayı:"))lastCompared=fingerprint;
-            status.setText(move+"\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\n"+result.summary);
+            if(move.startsWith("Tek hamle adayı:")||move.startsWith("İki hamle adayı:")){lastCompared=fingerprint;saveTracking();}
+            status.setText(move+"\nFEN (sınırlı): "+tracker.fen()+"\nEşik: "+String.format(java.util.Locale.US,"%.1f",cutoff)+"\n"+result.summary);
         });
         Button resetMoves=new Button(this);
         resetMoves.setText("Hamle takibini başlangıca sıfırla");
         root.addView(resetMoves);
-        resetMoves.setOnClickListener(v->{tracker.reset();lastCompared="";status.setText("Hamle takibi sıfırlandı. Başlangıç konumundan ve beyazın sırasından başla.");});
+        resetMoves.setOnClickListener(v->{tracker.reset();lastCompared="";saveTracking();status.setText("Hamle takibi sıfırlandı. Başlangıç konumundan ve beyazın sırasından başla.");});
+        Button fenButton=new Button(this);
+        fenButton.setText("Pozisyonu / FEN'i göster");
+        root.addView(fenButton);
+        fenButton.setOnClickListener(v -> status.setText("Hamleler: "+tracker.history()+"\nFEN (sınırlı): "+tracker.fen()));
         TextView guide=new TextView(this);
         guide.setText("Görüntü açılınca tahtanın SOL ÜST ve SAĞ ALT köşelerine sırayla dokun. Kırmızı 8×8 ızgara görünür.");
         root.addView(guide);
@@ -104,6 +109,8 @@ public class MainActivity extends Activity {
         root.addView(reset);
         reset.setOnClickListener(v -> boardView.reset());
         setContentView(root);
+        String saved=getSharedPreferences("tracking",MODE_PRIVATE).getString("history","");
+        if(!saved.isEmpty())tracker.syncHistory(saved);
         reloadImage();
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
@@ -115,6 +122,9 @@ public class MainActivity extends Activity {
         service.putExtra("data",data);
         startForegroundService(service);
         status.setText("İzin verildi. Şimdi Chess.com bot oyununa geç; 12 saniye sonra ekran yakalanacak.");
+    }
+    private void saveTracking(){
+        getSharedPreferences("tracking",MODE_PRIVATE).edit().putString("history",tracker.history()).apply();
     }
     private void reloadImage() {
         String state=getSharedPreferences("capture",MODE_PRIVATE).getString("status","Henüz ekran yakalanmadı.");
