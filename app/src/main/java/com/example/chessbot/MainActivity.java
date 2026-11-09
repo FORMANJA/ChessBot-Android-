@@ -11,7 +11,9 @@ import java.io.File;
 
 public class MainActivity extends Activity {
     private TextView status;
-    private BoardView boardView;\n    private MoveTracker tracker=new MoveTracker();\n    private String lastCompared="";
+    private BoardView boardView;
+    private MoveTracker tracker=new MoveTracker();
+    private String lastCompared="";
     private final int REQUEST_CAPTURE=42;
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
