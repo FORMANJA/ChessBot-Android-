@@ -51,7 +51,8 @@ public class MainActivity extends Activity {
             if(!pref.contains("left")) {status.setText("Önce tahtanın köşelerini seç.");return;}
             BoardDiff.Result analysis=BoardDiff.analyze(previous,current,
                 pref.getFloat("left",0),pref.getFloat("top",0),
-                pref.getFloat("right",0),pref.getFloat("bottom",0));\n            status.setText(analysis.summary);
+                pref.getFloat("right",0),pref.getFloat("bottom",0));
+            status.setText(analysis.summary);
         });
         Button infer=new Button(this);
         infer.setText("Tek hamleyi tahmin et (deneysel)");
