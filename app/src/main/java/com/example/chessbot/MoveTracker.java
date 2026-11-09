@@ -14,6 +14,32 @@ public final class MoveTracker {
         for(int r=0;r<8;r++)board[r]=rows[r].toCharArray();
         whiteTurn=true;
     }
+    /** Rebuild from the standard opening using a verified chronological UCI move list. */
+    public String syncHistory(String history) {
+        reset();
+        String trimmed=history==null?"":history.trim();
+        if(trimmed.isEmpty())return "Başlangıç konumu yüklendi. Sıra: beyaz.";
+        String[] moves=trimmed.split("[,;\\s]+");
+        for(int i=0;i<moves.length;i++) {
+            String m=moves[i].toLowerCase(Locale.US);
+            if(!m.matches("[a-h][1-8][a-h][1-8]")) {
+                reset();return "Geçersiz hamle ("+(i+1)+"): "+m+". Takip sıfırlandı.";
+            }
+            int from=(8-(m.charAt(1)-'0'))*8+(m.charAt(0)-'a');
+            int to=(8-(m.charAt(3)-'0'))*8+(m.charAt(2)-'a');
+            if(!canMove(from,to)) {
+                reset();return "Konuma uymayan hamle ("+(i+1)+"): "+m+". Takip sıfırlandı.";
+            }
+            char piece=board[from/8][from%8];
+            if(Character.toLowerCase(piece)=='p'&&(to/8==0||to/8==7)){
+                reset();return "Terfi desteklenmiyor. Takip sıfırlandı.";
+            }
+            board[to/8][to%8]=piece;
+            board[from/8][from%8]='.';
+            whiteTurn=!whiteTurn;
+        }
+        return moves.length+" hamle yüklendi. Sıra: "+(whiteTurn?"beyaz":"siyah")+".";
+    }
     public String observe(double[] changes,double threshold){
         if(changes==null||changes.length!=64)return "64 karelik veri gerekli";
         int[] candidate=new int[4];int count=0;
