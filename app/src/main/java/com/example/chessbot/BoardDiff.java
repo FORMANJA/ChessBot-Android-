@@ -8,7 +8,14 @@ import java.util.Locale;
 
 /** Compare two screenshots of the same calibrated board. Does not identify pieces. */
 public final class BoardDiff {
-    public static String compare(File previous, File current, float left, float top, float right, float bottom) {\n        return analyze(previous,current,left,top,right,bottom).summary;\n    }\n    public static final class Result {\n        public final String summary; public final double[] scores;\n        Result(String summary,double[] scores){this.summary=summary;this.scores=scores;}\n    }\n    public static Result analyze(File previous, File current, float left, float top, float right, float bottom) {
+    public static String compare(File previous, File current, float left, float top, float right, float bottom) {
+        return analyze(previous,current,left,top,right,bottom).summary;
+    }
+    public static final class Result {
+        public final String summary; public final double[] scores;
+        Result(String summary,double[] scores){this.summary=summary;this.scores=scores;}
+    }
+    public static Result analyze(File previous, File current, float left, float top, float right, float bottom) {
         Bitmap a=BitmapFactory.decodeFile(previous.getAbsolutePath());
         Bitmap b=BitmapFactory.decodeFile(current.getAbsolutePath());
         if(a==null||b==null)return new Result("Görüntüler okunamadı.",null);
