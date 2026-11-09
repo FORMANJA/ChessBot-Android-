@@ -3,3 +3,7 @@
 Captures screenshots with MediaProjection, supports manual board calibration and ranks changed squares. A new experimental move tracker starts from the standard chess opening position and tries to match **exactly two changed squares** to one piece move. It does not implement full legal chess rules (castling, en passant, check validation, promotions), does not reconstruct missed moves, and may misinterpret highlights. It is not reliable for autonomous play.
 
 For a meaningful test: reset the tracker, capture a fresh initial board, make exactly **one** move, capture again, then press **Tek hamleyi tahmin et**. Do not skip turns. Reset on uncertain output. No accessibility service, engine, or automated taps.
+
+## v0.5.1 history sync
+
+Enter **every prior move in chronological UCI form** (e.g. `g1f3 g8f6 d2d3`) and press **Hamle geçmişini eşitle** before comparing a screenshot pair containing the next single move. The tracker assumes white at bottom and starts from the standard chess position. It has no complete legality engine, promotion/castling/en passant support, or robust handling for screenshots with multiple moves. Incorrect history must be reset rather than guessed.
