@@ -8,13 +8,13 @@ import java.util.Locale;
 
 /** Compare two screenshots of the same calibrated board. Does not identify pieces. */
 public final class BoardDiff {
-    public static String compare(File previous, File current, float left, float top, float right, float bottom) {
+    public static String compare(File previous, File current, float left, float top, float right, float bottom) {\n        return analyze(previous,current,left,top,right,bottom).summary;\n    }\n    public static final class Result {\n        public final String summary; public final double[] scores;\n        Result(String summary,double[] scores){this.summary=summary;this.scores=scores;}\n    }\n    public static Result analyze(File previous, File current, float left, float top, float right, float bottom) {
         Bitmap a=BitmapFactory.decodeFile(previous.getAbsolutePath());
         Bitmap b=BitmapFactory.decodeFile(current.getAbsolutePath());
-        if(a==null||b==null)return "Görüntüler okunamadı.";
+        if(a==null||b==null)return new Result("Görüntüler okunamadı.",null);
         try {
-            if(a.getWidth()!=b.getWidth()||a.getHeight()!=b.getHeight()) return "Ekran boyutu değişti; karşılaştırma yapılamaz.";
-            if(right<=left||bottom<=top)return "Önce tahtayı kalibre et.";
+            if(a.getWidth()!=b.getWidth()||a.getHeight()!=b.getHeight()) return new Result("Ekran boyutu değişti; karşılaştırma yapılamaz.",null);
+            if(right<=left||bottom<=top)return new Result("Önce tahtayı kalibre et.",null);
             double[] scores=new double[64];
             for(int row=0;row<8;row++) for(int col=0;col<8;col++){
                 double sum=0;int count=0;
@@ -41,7 +41,7 @@ public final class BoardDiff {
                 if(k==3)out.append("\n");
             }
             out.append("\n\nBu yalnızca görüntü farkıdır; hamle veya taş türü kesin olarak belirlenmez. Animasyon, vurgular ve tema değişimi sonucu etkiler.");
-            return out.toString();
+            return new Result(out.toString(),scores);
         } finally {a.recycle();b.recycle();}
     }
 }
