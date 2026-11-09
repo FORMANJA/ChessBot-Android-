@@ -1,11 +1,7 @@
-# ChessBot Lab v0.2
+# ChessBot Lab v0.4
 
-A minimal Android installation and MediaProjection **permission-request test**.
+This version captures screenshots with Android MediaProjection and allows manual 8×8 board calibration. Capture two screenshots of the Chess.com **computer-bot** board, then press **Önceki ve son görüntüyü karşılaştır** to rank the squares with the greatest pixel differences.
 
-- No AccessibilityService declared in the manifest.
-- No automated taps, chess engine, or screen capture recording.
-- No network permission.
-- Built as a debug APK using GitHub Actions.
-- Debug APKs are not independently verified or Play Store reviewed. Google Play Protect may still warn.
+It does not identify chess pieces, infer legal moves, generate FEN, run Stockfish, or tap the screen. Results are affected by animations, highlights and changed camera/layout. No AccessibilityService or internet permission is declared.
 
-This version is intended to verify installation and the permission dialog only. The app does not play chess.
+Debug APK builds are available under GitHub Actions artifacts after a successful run.
