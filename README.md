@@ -11,3 +11,7 @@ Enter **every prior move in chronological UCI form** (e.g. `g1f3 g8f6 d2d3`) and
 ## v0.6 experimental two-move detection
 
 The **1 veya 2 hamleyi analiz et** button evaluates changed squares against the internally tracked position. It can recognize some sequences of two non-capturing moves (e.g. g1f3 d7d6) without requiring separate screenshots between the moves. It refuses ambiguous candidate sets. It still requires synchronization with the actual game position and cannot recover arbitrary missed moves. Castling, en passant, promotion, captures in two-move mode, and full legal-check validation are unsupported. Do not use for automatic play.
+
+## V0.7 — Provisional position tracking
+
+Accepted UCI moves are now persisted across app restarts, and the **Pozisyonu / FEN'i göster** button displays the tracked piece placement and side to move. History is reconstructed from the standard starting position. Manual history sync remains available for recovery. The displayed FEN is **not a full, reliable legal position**: castling rights and en-passant are always marked unavailable, halfmove clock is a placeholder, and special moves are unsupported. No automatic screenshot polling, Stockfish integration, or touchscreen move execution exists. This version is for Chess.com computer-bot testing only.
